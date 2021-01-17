@@ -10,6 +10,7 @@ print("importing",DIR)
 
 file = join(PATH,'Posts.xml')
 
+# clean方法用于移除x中的特殊字符
 def clean(x):
     #neo4j-import doesn't support: multiline (coming soon), quotes next to each other and escape quotes with '\""'
     return x.replace('\n','').replace('\r','').replace('\\','').replace('"','')
@@ -18,6 +19,7 @@ def open_csv(name):
     return csv.writer(open('csvs/{}.csv'.format(name), 'w'), doublequote=False, escapechar='\\')
 
 try:
+    # 该方法递归删除文件夹下的所有子文件夹和子文件
     shutil.rmtree('csvs/')
 except:
     pass
@@ -41,11 +43,15 @@ users_posts_rel.writerow([':START_ID(User)', ':END_ID(Post)'])
 tags.writerow(['tagId:ID(Tag)'])
 tags_posts_rel.writerow([':START_ID(Post)', ':END_ID(Tag)'])
 
-for i, line in enumerate(open(file)):
+# enumerate 对于一个可迭代的（iterable）/可遍历的对象（如列表、字符串），enumerate将其组成一个索引序列，利用它可以同时获得索引和值
+for i, line in enumerate(open(file, encoding="gbk", errors="ignore")):
+    # strip用于移除字符串头尾指定的字符或字符序列（默认是空格或换行符）
     line = line.strip()
     try:
         if line.startswith("<row"):
+            # parse方法将xml变得像json
             el = xmltodict.parse(line)['row']
+            # replace_keys用于将每项的key改为小写并且移除'@'字符
             el = replace_keys(el)
             posts.writerow([
                 el['id'],
@@ -74,7 +80,7 @@ print(i,'posts ok')
 
 file = join(PATH,'Users.xml')
 
-for i, line in enumerate(open(file)):
+for i, line in enumerate(open(file, encoding="gbk", errors="ignore")):
     line = line.strip()
     try:
         if line.startswith("<row"):
@@ -93,7 +99,7 @@ print(i,'users ok')
 
 file = join(PATH,'Tags.xml')
 
-for i, line in enumerate(open(file)):
+for i, line in enumerate(open(file, encoding="gbk", errors="ignore")):
     line = line.strip()
     try:
         if line.startswith("<row"):
